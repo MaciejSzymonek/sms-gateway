@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import RegisterPage from "./RegisterPage";
 
-const LoginPage = () => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -10,7 +9,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const goToRegister = () => {
-    navigate("/register"); // This will navigate to the About page
+    navigate("/register");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -22,56 +21,22 @@ const LoginPage = () => {
       return;
     }
 
-    // Perform login logic here
     console.log("Logging in with:", { email, password });
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        backgroundColor: "#f3f4f6",
-      }}
-    >
-      <div
-        style={{
-          width: "24rem",
-          padding: "1rem",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-          backgroundColor: "white",
-          borderRadius: "8px",
-        }}
-      >
-        <h2 style={{ textAlign: "center", marginBottom: "1rem" }}>Login</h2>
-        {error && (
-          <p
-            style={{
-              color: "red",
-              fontSize: "0.875rem",
-              marginBottom: "0.5rem",
-            }}
-          >
-            {error}
-          </p>
-        )}
-        <form
-          onSubmit={handleSubmit}
-          style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
-        >
+    <div className="flex justify-center items-center h-screen bg-gray-100">
+      <div className="w-96 p-4 shadow-lg bg-white rounded-lg">
+        <h2 className="text-center mb-4 text-xl font-semibold">Login</h2>
+        {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{
-              padding: "0.5rem",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-            }}
+            className="p-2 border border-gray-300 rounded-md"
           />
           <input
             type="password"
@@ -79,38 +44,18 @@ const LoginPage = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{
-              padding: "0.5rem",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-            }}
+            className="p-2 border border-gray-300 rounded-md"
           />
           <button
             type="submit"
-            style={{
-              padding: "0.75rem",
-              backgroundColor: "#3b82f6",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
+            className="p-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
           >
             Login
           </button>
         </form>
         <button
           onClick={goToRegister}
-          style={{
-            marginTop: "1rem",
-            padding: "0.75rem",
-            backgroundColor: "#10b981",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            width: "100%",
-          }}
+          className="mt-4 p-3 bg-green-500 text-white rounded-md w-full hover:bg-green-600 transition"
         >
           Register
         </button>
@@ -119,4 +64,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default Login;
