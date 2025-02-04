@@ -1,10 +1,9 @@
-import LoginPage from "./component/LoginPage";
-
+import Haha from "./component/LoginHead";
 // src/About.tsx
 const Login = () => {
   return (
     <div>
-      <LoginPage />
+      <Haha />
     </div>
   );
 };

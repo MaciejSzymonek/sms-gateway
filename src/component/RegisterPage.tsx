@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import LoginPage from "./LoginPage";
 
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
@@ -28,7 +27,7 @@ const RegisterPage = () => {
   };
 
   const LoginPage = () => {
-    navigate("/Login");
+    navigate("/");
   };
 
   return (
