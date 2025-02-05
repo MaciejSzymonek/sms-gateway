@@ -1,54 +1,37 @@
-import React, { useState } from "react";
-import axios from "axios";
+import { useState } from "react";
 import LoginPage from "./LoginPage"; // Assuming LoginPage is the child component
+import { login } from "./ApiManager";
 
-const Haha = () => {
-  const [error, setError] = useState("");
+const LoginHead = () => {
+  const [errorMsg, setErrorMsg] = useState("");
 
   // Handle the login submission logic
   const handleLogin = async (user_id: string, password: string) => {
-    try {
-      if (!user_id || !password) {
-        setError("Please fill in all fields.");
-        return;
-      }
-
-      setError("");
-
-      const response = await axios.post(
-        "http://localhost:8080/sms-gateway/login",
-        {
-          user_id,
-          password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      console.log("Login successful:", response.data);
-      // Add any additional logic here if necessary, such as navigation
-      // navigate('/dashboard'); or perform other actions.
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        const statusCode = error.response.status;
-        if (statusCode === 404) {
-          setError("A user with this ID does not exist.");
-        } else if (statusCode === 401) {
-          setError("Bad credentials.");
+    login(user_id, password)
+      .then((response) => {
+        if (response.success) {
+          console.log("Login successful:", response.data);
+          window.location.replace("http://localhost:5173/tables");
         } else {
-          setError("An error occurred. Please try again.");
+          console.error("Login failed:", response.message);
+          if (response.message.toLowerCase().includes("credentials")) {
+            setErrorMsg("Wrong Password");
+          } else if (response.message.toLowerCase().includes("user")) {
+            setErrorMsg("No user with this id found");
+          } else {
+            setErrorMsg("gamba");
+          }
+
+          // Handle error in your component, e.g., show it to the user
         }
-      } else {
-        console.error("Network Error:", error);
-        setError("An error occurred. Please try again.");
-      }
-    }
+      })
+      .catch((error) => {
+        setErrorMsg(error);
+        console.error("Unexpected error during login:", error);
+      });
   };
 
-  return <LoginPage onLogin={handleLogin} error={error} />;
+  return <LoginPage onLogin={handleLogin} error={errorMsg} />;
 };
 
-export default Haha;
+export default LoginHead;

@@ -1,7 +1,7 @@
 // src/Home.tsx
 import { useNavigate } from "react-router-dom";
-import TableHead from "./component/TableHead";
-import LogOut from "./component/LogOut";
+import TableHead from "../component/TableHead";
+import LogOut from "../component/LogOut";
 
 const Home = () => {
   const navigate = useNavigate();

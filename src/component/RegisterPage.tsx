@@ -25,10 +25,6 @@ const RegisterPage = () => {
     console.log("Registering with:", { email, password });
   };
 
-  const RegisterPage = () => {
-    navigate("/");
-  };
-
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
       <div className="w-96 p-4 shadow-lg bg-white rounded-lg">
@@ -66,7 +62,7 @@ const RegisterPage = () => {
             Register
           </button>
           <button
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/")}
             className="p-3 bg-blue-500 text-white rounded-md w-full hover:bg-blue-600 transition"
           >
             Back to login

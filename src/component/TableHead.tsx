@@ -1,47 +1,52 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Table from "./Table";
+import { readCall } from "./ApiManager";
 
 interface TableRow {
-  id: string;
+  user_id: string;
   name: string;
   customer_id: string;
   phone: string;
   role: string;
   status: string;
+  sms_sent: string;
 }
 
 const TableHead: React.FC = () => {
   const [users, setUsers] = useState<TableRow[]>([]);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8080/GUIApi/user", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-      .then((response) => {
-        console.log("Raw response data:", response.data);
+    const fetchUsers = async () => {
+      const { success, data, message } = await readCall("user", ""); // You can specify any ID if needed
+      if (success) {
+        try {
+          // Access the 'data' field correctly based on your response structure
+          if (data && data.data && Array.isArray(data.data)) {
+            const usersArray = data.data; // Access the array inside the 'data' field
 
-        let Snickers = JSON.stringify(response.data);
-        const jsonString = Snickers.replace(/^string\(\d+\)\s+"/, "").trim();
-        const usersArray = JSON.parse(jsonString);
+            const tableData: TableRow[] = usersArray.map((user: any) => ({
+              user_id: String(user.user_id),
+              name: user.user_name || "N/A",
+              customer_id: user.customer_id ? String(user.customer_id) : "N/A",
+              phone: user.user_phonenumber || "N/A",
+              role: user.user_role || "N/A",
+              sms_sent: user.total_sms_sent,
+              status: user.user_is_active ? "Active" : "Inactive",
+            }));
 
-        const tableData: TableRow[] = usersArray.map((user: any) => ({
-          id: String(user.user_id), // Ensure id is a string
-          name: user.user_name || "N/A",
-          customer_id: user.customer_id ? String(user.customer_id) : "N/A", // Add customer_id
-          phone: user.user_phonenumber || "N/A",
-          role: user.user_role || "N/A",
-          status: user.user_is_active ? "Active" : "Inactive",
-        }));
+            setUsers(tableData);
+          } else {
+            console.error("Expected an array inside 'data' but got:", data);
+          }
+        } catch (error) {
+          console.error("Error parsing response data:", error);
+        }
+      } else {
+        console.error("Error fetching users:", message);
+      }
+    };
 
-        setUsers(tableData);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
+    fetchUsers();
   }, []);
 
   return (

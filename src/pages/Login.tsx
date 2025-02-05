@@ -1,9 +1,9 @@
-import Haha from "./component/LoginHead";
+import LoginHead from "../component/LoginHead";
 // src/About.tsx
 const Login = () => {
   return (
     <div>
-      <Haha />
+      <LoginHead />
     </div>
   );
 };
