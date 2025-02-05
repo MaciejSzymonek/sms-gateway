@@ -46,8 +46,7 @@ const Table: React.FC<TableProps> = ({ data }) => {
       !formData.customer_id ||
       !formData.phone ||
       !formData.role ||
-      !formData.status ||
-      !formData.sms_sent
+      !formData.status
     ) {
       setErrorMessage("Please fill in all fields before adding a user.");
       return;
@@ -106,7 +105,7 @@ const Table: React.FC<TableProps> = ({ data }) => {
             <th className="border border-gray-300 px-4 py-2">Role</th>
             <th className="border border-gray-300 px-4 py-2">SMS sent</th>
             <th className="border border-gray-300 px-4 py-2">Status</th>
-            <th className="border border-gray-300 px-4 py-2">Actions</th>
+            <th className="border-0 border-gray-300 px-4 py-2">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -146,7 +145,6 @@ const Table: React.FC<TableProps> = ({ data }) => {
           ))}
         </tbody>
       </table>
-
       <div className="mt-4">
         <button
           id="upsertForm"
@@ -159,7 +157,6 @@ const Table: React.FC<TableProps> = ({ data }) => {
           {showForm ? "Hide" : "Add User"}
         </button>
       </div>
-
       {showForm && (
         <div className="mt-4 p-4 border rounded-md bg-gray-100">
           <h3 className="text-lg font-bold mb-2">

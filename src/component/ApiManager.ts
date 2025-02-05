@@ -73,13 +73,15 @@ export const readCall = async (
 // Union type to handle both
 type RegisterParams = UserParams | CustomerParams;
 
-export const registerCall = async (params: RegisterParams): Promise<any> => {
+export const registerCall = async (
+  destination: string,
+  params: RegisterParams
+): Promise<any> => {
   try {
     let payload;
 
     // Check if it's a user or customer based on unique property
     if ("user_id" in params) {
-      // Handle User Params
       payload = {
         user_id: params.user_id,
         customer_id: params.customer_id,
@@ -89,7 +91,6 @@ export const registerCall = async (params: RegisterParams): Promise<any> => {
         user_is_active: params.user_is_active,
       };
     } else {
-      // Handle Customer Params
       payload = {
         customer_name: params.customer_name,
         customer_orgnr: params.customer_orgnr,
@@ -101,12 +102,19 @@ export const registerCall = async (params: RegisterParams): Promise<any> => {
       };
     }
 
-    const response = await apiGui.post("/upsert", payload);
+    const response = await apiGui.post("/" + destination + "/", payload);
     return { success: true, data: response }; // Return data if successful
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      // Safe to access error.response or error.message
-      return { success: false, message: error.response?.data || error.message };
+      // Make sure error message is a string
+      const message = error.response?.data?.error || error.message;
+      return {
+        success: false,
+        message:
+          typeof message === "string"
+            ? message
+            : "An unexpected error occurred",
+      };
     }
     return {
       success: false,

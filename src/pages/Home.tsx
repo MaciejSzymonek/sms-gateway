@@ -6,14 +6,14 @@ import LogOut from "../component/LogOut";
 const Home = () => {
   const navigate = useNavigate();
 
-  const goToAboutPage = () => {
-    navigate("/Login"); // This will navigate to the About page
+  const goTologinPage = () => {
+    navigate("/"); // This will navigate to the login page
   };
 
   return (
     <div className="p-2">
       <LogOut />
-      <button onClick={goToAboutPage}></button>
+      <button onClick={goTologinPage}></button>
       <TableHead />
     </div>
   );
