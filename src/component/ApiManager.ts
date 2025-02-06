@@ -165,21 +165,34 @@ export const deleteCall = async (
 };
 
 // Login function
-export const login = async (
-  user_id: string,
-  password: string
-): Promise<any> => {
+export const login = async (user_id: string, password: string) => {
   try {
-    const response = await apiBackend.post("/login", { user_id, password });
-    return { success: true, data: response }; // Return data if successful
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      // Safe to access error.response or error.message
-      return { success: false, message: error.response?.data || error.message };
+    const response = await apiBackend.post(
+      "/login",
+      { user_id, password },
+      {
+        withCredentials: true,
+        responseType: "json", // ✅ Correct placement
+      }
+    );
+    if (!response.data.token) {
+      console.error("No token received:", response.data);
+      return {
+        success: false,
+        message: response.data.error || "No token in response",
+      };
     }
+
+    return {
+      success: true,
+      token: response.data.token,
+      refreshToken: response.data.refresh_token,
+    };
+  } catch (error) {
+    console.error("Error:", error);
     return {
       success: false,
-      message: "An unexpected error occurred during login",
+      //message: error.response?.data?.error || error.message,
     };
   }
 };
