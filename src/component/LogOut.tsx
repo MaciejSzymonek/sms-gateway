@@ -4,7 +4,7 @@ const LogOut = () => {
   const navigate = useNavigate();
   const handleLogout = () => {
     console.log("Logging out...");
-    navigate("/Login"); // Redirect to Login page
+    navigate("/"); // Redirect to Login page
   };
 
   return (

@@ -1,27 +1,27 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const Login = () => {
-  const [email, setEmail] = useState("");
+// Define the types for the props
+
+interface LoginPageProps {
+  onLogin: (user_id: string, password: string) => void; // Function to handle login
+  error: string; // Error message passed from parent
+}
+
+const LoginPage: React.FC<LoginPageProps> = ({ onLogin, error }) => {
+  const [user_id, setUser_id] = useState("");
+
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
   const goToRegister = () => {
-    navigate("/register");
+    navigate("/register"); // This will navigate to the register page
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-
-    if (!email || !password) {
-      setError("Both fields are required");
-      return;
-    }
-
-    console.log("Logging in with:", { email, password });
+    onLogin(user_id, password); // Call the function passed from the parent
   };
 
   return (
@@ -33,8 +33,8 @@ const Login = () => {
           <input
             type="email"
             placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={user_id}
+            onChange={(e) => setUser_id(e.target.value)}
             required
             className="p-2 border border-gray-300 rounded-md"
           />
@@ -64,4 +64,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginPage;
