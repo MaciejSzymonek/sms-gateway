@@ -11,11 +11,10 @@ const LoginHead = () => {
       .then((response) => {
         if (response.success) {
           console.log("Login successful:", response);
-          console.log("Response Content-Type:");
 
           localStorage.setItem("AccessToken", response.token);
 
-          //window.location.replace("http://localhost:5173/tables");
+          window.location.replace("http://localhost:5173/tables");
         } else {
           console.error("Login failed:", response.message);
           if (response.message.toLowerCase().includes("credentials")) {
