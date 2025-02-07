@@ -16,10 +16,11 @@ const LoginHead = () => {
 
           window.location.replace("http://localhost:5173/tables");
         } else {
+          const messages = JSON.stringify(response.message);
           console.error("Login failed:", response.message);
-          if (response.message.toLowerCase().includes("credentials")) {
+          if (messages.includes("credentials")) {
             setErrorMsg("Wrong Password");
-          } else if (response.message.toLowerCase().includes("user")) {
+          } else if (messages.includes("user")) {
             setErrorMsg("No user with this id found");
           } else {
             setErrorMsg("Unexpected error during login:");

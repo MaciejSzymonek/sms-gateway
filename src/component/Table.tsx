@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { deleteCall } from "./ApiManager";
 
 interface TableRow {
   user_id: string;
@@ -58,9 +59,10 @@ const Table: React.FC<TableProps> = ({ data }) => {
           row.user_id === editingId ? { ...row, ...formData } : row
         )
       );
-      console.log(formData); //in med upsert funktionen här
+      console.log(formData); //in med upsert funktionen här för updatera
       setEditingId(null);
     } else {
+      console.log(formData);
       const newRow: TableRow = {
         user_id: (tableData.length + 1).toString(),
         ...formData,
@@ -80,7 +82,9 @@ const Table: React.FC<TableProps> = ({ data }) => {
   };
 
   const deleteRow = (user_id: string) => {
+    const response = deleteCall("user", user_id);
     setTableData(tableData.filter((row) => row.user_id !== user_id));
+    console.log(response);
   };
 
   const modifyRow = (user_id: string) => {
@@ -135,7 +139,13 @@ const Table: React.FC<TableProps> = ({ data }) => {
                 <button
                   className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
                   onClick={() => {
-                    deleteRow(row.user_id);
+                    if (
+                      window.confirm(
+                        "Are you sure you want to delete " + row.user_id + "?"
+                      )
+                    ) {
+                      deleteRow(row.user_id);
+                    }
                   }}
                 >
                   Delete

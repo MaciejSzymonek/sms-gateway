@@ -36,7 +36,19 @@ const apiGui = axios.create({
 
 // Add authorization header to requests (except login and register)
 apiGui.interceptors.request.use((config) => {
-  const token = localStorage.getItem("Accesstoken");
+  const token = localStorage.getItem("AccessToken");
+  if (
+    token &&
+    !config.url?.includes("login") &&
+    !config.url?.includes("register")
+  ) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
+  return config;
+});
+
+apiBackend.interceptors.request.use((config) => {
+  const token = localStorage.getItem("AccessToken");
   if (
     token &&
     !config.url?.includes("login") &&
@@ -120,14 +132,33 @@ export const login = async (user_id: string, password: string) => {
       return {
         success: false,
         message: response.data.error || "No token in response",
+        token: "",
       };
     }
     return {
       success: true,
       token: response.data.token,
+      message: "",
     };
   } catch (error) {
     return handleAxiosError(error, "login");
+  }
+};
+
+export const verify = async () => {
+  try {
+    const response = await apiBackend.get("/verifyToken", {
+      withCredentials: true,
+    });
+
+    return {
+      success: true,
+      role: response.data.tokenValues["role"],
+    };
+  } catch (error) {
+    return {
+      success: false,
+    };
   }
 };
 
@@ -140,12 +171,29 @@ export const logout = async (): Promise<any> => {
   }
 };
 
+export const storePassword = async (
+  user_id: string,
+  password: string
+): Promise<any> => {
+  try {
+    const response = await apiBackend.post("/register", {
+      user_id,
+      password,
+    });
+    return { success: true, data: response };
+  } catch (error) {
+    return handleAxiosError(error, "logout");
+  }
+};
+
 const handleAxiosError = (error: unknown, action: string) => {
   if (axios.isAxiosError(error)) {
     return { success: false, message: error.response?.data || error.message };
   }
+  console.log("h");
   return {
     success: false,
     message: `An unexpected error occurred during ${action}`,
+    token: "",
   };
 };

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerCall } from "./ApiManager";
+import { registerCall, storePassword } from "./ApiManager";
 
 const RegisterPage = () => {
   const [user_id, setUser_id] = useState("");
@@ -51,8 +51,9 @@ const RegisterPage = () => {
       setLoading(true);
       // Attempt to register
       const response = await registerCall("user", userDetails);
+      const response2 = await storePassword(user_id, password);
 
-      if (response.success) {
+      if (response.success && response2.success) {
         // If successful, show success message
         setSuccess(true);
         // Then, show the redirecting message and spinner
@@ -60,7 +61,7 @@ const RegisterPage = () => {
           setRedirecting(true); // Enable the redirecting state
           setTimeout(() => {
             window.location.replace(
-              window.location.protocol + "//" + window.location.host + "/"
+              window.location.protocol + "//" + window.location.host + "/login"
             );
           }, 500); // Add a slight delay to show redirect spinner before actually redirecting
         }, 1000); // Delay the redirecting message for 1 second (adjust as needed)
@@ -169,7 +170,7 @@ const RegisterPage = () => {
             )}
           </button>
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/login")}
             className="p-3 bg-blue-500 text-white rounded-md w-full hover:bg-blue-600 transition"
             disabled={loading} // Disable button during loading
           >

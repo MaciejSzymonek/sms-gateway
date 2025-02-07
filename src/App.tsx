@@ -1,18 +1,38 @@
 // src/App.tsx
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Home from "./pages/Home";
+import Home from "./pages/tables";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import HomePage from "./component/HomePage";
+import HomePage from "./pages/HomePage";
+import ProtectedRoute from "./component/ProtectedRoute";
+import { AccessDenied } from "./pages/accessDenied";
+// Import ProtectedRoute
 
 const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} /> {/*login */}
-        <Route path="/tables" element={<Home />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="Login" element={<Login />} />
+        <Route path="/" element={<HomePage />} /> {/* Public route */}
+        <Route path="/login" element={<Login />} /> {/* Public route */}
+        <Route path="/register" element={<Register />} /> {/* Public route */}
+        <Route path="/access-denied" element={<AccessDenied />} />{" "}
+        {/* Public route */}
+        {/* Protected routes */}
+        <Route
+          path="/tables"
+          element={
+            <ProtectedRoute
+              element={<Home />}
+              requiredRoles={["user", "admin"]}
+            /> // Protect /tables route
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute element={<Home />} requiredRoles={["admin"]} />
+          } // Example: Admin role access
+        />
       </Routes>
     </Router>
   );

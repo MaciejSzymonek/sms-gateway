@@ -8,7 +8,7 @@ const LogOut = () => {
       const response = await logout(); // Await if logout is async
       console.log("Logging out...");
       localStorage.removeItem("AccessToken"); // Remove the access token from localStorage
-      navigate("/"); // Redirect to the login page
+      navigate("/login"); // Redirect to the login page
       console.log(response.data); // Optionally log the response from logout
     } catch (error) {
       console.error("Logout failed:", error);
