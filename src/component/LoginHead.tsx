@@ -11,16 +11,16 @@ const LoginHead = () => {
       .then((response) => {
         if (response.success) {
           console.log("Login successful:", response);
-          console.log("Response Content-Type:");
 
           localStorage.setItem("AccessToken", response.token);
 
-          //window.location.replace("http://localhost:5173/tables");
+          window.location.replace("http://localhost:5173/tables");
         } else {
+          const messages = JSON.stringify(response.message);
           console.error("Login failed:", response.message);
-          if (response.message.toLowerCase().includes("credentials")) {
+          if (messages.includes("credentials")) {
             setErrorMsg("Wrong Password");
-          } else if (response.message.toLowerCase().includes("user")) {
+          } else if (messages.includes("user")) {
             setErrorMsg("No user with this id found");
           } else {
             setErrorMsg("Unexpected error during login:");

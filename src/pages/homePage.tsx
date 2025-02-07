@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { verify } from "../component/ApiManager";
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -30,8 +31,15 @@ const HomePage: React.FC = () => {
     }
   }, []);
 
-  const goToLogin = () => {
-    navigate("/login");
+  const Kurwa = async () => {
+    const response = verify();
+    console.log((await response).success);
+    if ((await response).success) {
+      navigate("/tables");
+      console.log("ok?");
+    } else {
+      navigate("/login"); // This will navigate to the register page
+    }
   };
 
   return (
@@ -40,10 +48,7 @@ const HomePage: React.FC = () => {
       <nav className="bg-blue-300 dark:bg-gray-800 shadow-lg">
         <div className="max-w-screen-xl mx-auto px-6 py-6 flex items-center justify-between">
           {/* Left Button */}
-          <button
-            className="text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-400 dark:hover:bg-gray-700 transition"
-            onClick={goToLogin}
-          >
+          <button className="text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-400 dark:hover:bg-gray-700 transition">
             Login In
           </button>
 

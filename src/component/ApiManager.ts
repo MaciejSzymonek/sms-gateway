@@ -34,13 +34,35 @@ const apiGui = axios.create({
   },
 });
 
+// Add authorization header to requests (except login and register)
+apiGui.interceptors.request.use((config) => {
+  const token = localStorage.getItem("AccessToken");
+  if (
+    token &&
+    !config.url?.includes("login") &&
+    !config.url?.includes("register")
+  ) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
+  return config;
+});
+
+apiBackend.interceptors.request.use((config) => {
+  const token = localStorage.getItem("AccessToken");
+  if (
+    token &&
+    !config.url?.includes("login") &&
+    !config.url?.includes("register")
+  ) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // Response handling (optional: for specific transformations)
 apiBackend.interceptors.response.use(
-  (response: AxiosResponse) => {
-    return response.data; // Directly return data for simplicity
-  },
+  (response: AxiosResponse) => response.data,
   (error: AxiosError) => {
-    // Custom error handling logic
     console.error("API Error:", error.response?.data || error.message);
     return Promise.reject(error);
   }
@@ -51,26 +73,15 @@ export const readCall = async (
   id: string
 ): Promise<any> => {
   try {
-    const response = await apiGui.get("/" + destination + "/" + id);
-    return { success: true, data: response }; // Return data if successful
+    const response = await apiGui.get(`/${destination}/${id}`);
+    return { success: true, data: response };
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      // Safe to access error.response or error.message
-      return { success: false, message: error.response?.data || error.message };
-    }
-    return {
-      success: false,
-      message:
-        "An unexpected error occurred while fetching the " +
-        destination +
-        " data ",
-    };
+    return handleAxiosError(error, destination);
   }
 };
 
 // Register function
 
-// Union type to handle both
 type RegisterParams = UserParams | CustomerParams;
 
 export const registerCall = async (
@@ -78,48 +89,10 @@ export const registerCall = async (
   params: RegisterParams
 ): Promise<any> => {
   try {
-    let payload;
-
-    // Check if it's a user or customer based on unique property
-    if ("user_id" in params) {
-      payload = {
-        user_id: params.user_id,
-        customer_id: params.customer_id,
-        user_name: params.user_name,
-        user_phonenumber: params.user_phonenumber,
-        user_role: params.user_role,
-        user_is_active: params.user_is_active,
-      };
-    } else {
-      payload = {
-        customer_name: params.customer_name,
-        customer_orgnr: params.customer_orgnr,
-        customer_nr: params.customer_nr,
-        customer_contact_person: params.customer_contact_person,
-        customer_phonenumber: params.customer_phonenumber,
-        customer_final_date: params.customer_final_date,
-        customer_is_active: params.customer_is_active,
-      };
-    }
-
-    const response = await apiGui.post("/" + destination + "/", payload);
-    return { success: true, data: response }; // Return data if successful
+    const response = await apiGui.post(`/${destination}/`, params);
+    return { success: true, data: response };
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      // Make sure error message is a string
-      const message = error.response?.data?.error || error.message;
-      return {
-        success: false,
-        message:
-          typeof message === "string"
-            ? message
-            : "An unexpected error occurred",
-      };
-    }
-    return {
-      success: false,
-      message: "An unexpected error occurred during registration",
-    };
+    return handleAxiosError(error, "registration");
   }
 };
 
@@ -129,16 +102,9 @@ export const updateCall = async (
 ): Promise<any> => {
   try {
     const response = await apiGui.patch("/upsert", { user_id, password });
-    return { success: true, data: response }; // Return data if successful
+    return { success: true, data: response };
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      // Safe to access error.response or error.message
-      return { success: false, message: error.response?.data || error.message };
-    }
-    return {
-      success: false,
-      message: "An unexpected error occurred during update",
-    };
+    return handleAxiosError(error, "update");
   }
 };
 
@@ -147,20 +113,10 @@ export const deleteCall = async (
   id: string
 ): Promise<any> => {
   try {
-    const response = await apiGui.delete("/" + destination + "/" + id);
-    return { success: true, data: response }; // Return data if successful
+    const response = await apiGui.delete(`/${destination}/${id}`);
+    return { success: true, data: response };
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      // Safe to access error.response or error.message
-      return { success: false, message: error.response?.data || error.message };
-    }
-    return {
-      success: false,
-      message:
-        "An unexpected error occurred while deleting the " +
-        destination +
-        " data",
-    };
+    return handleAxiosError(error, destination);
   }
 };
 
@@ -170,46 +126,74 @@ export const login = async (user_id: string, password: string) => {
     const response = await apiBackend.post(
       "/login",
       { user_id, password },
-      {
-        withCredentials: true,
-        responseType: "json", // ✅ Correct placement
-      }
+      { withCredentials: true }
     );
     if (!response.data.token) {
-      console.error("No token received:", response.data);
       return {
         success: false,
         message: response.data.error || "No token in response",
+        token: "",
       };
     }
-
     return {
       success: true,
       token: response.data.token,
-      refreshToken: response.data.refresh_token,
+      message: "",
     };
   } catch (error) {
-    console.error("Error:", error);
+    return handleAxiosError(error, "login");
+  }
+};
+
+export const verify = async () => {
+  try {
+    const response = await apiBackend.get("/verifyToken", {
+      withCredentials: true,
+    });
+
+    return {
+      success: true,
+      role: response.data.tokenValues["role"],
+    };
+  } catch (error) {
     return {
       success: false,
-      //message: error.response?.data?.error || error.message,
     };
   }
 };
 
-// Logout function
 export const logout = async (): Promise<any> => {
   try {
     const response = await apiBackend.delete("/logout");
-    return { success: true, data: response }; // Return data if successful
+    return { success: true, data: response };
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      // Safe to access error.response or error.message
-      return { success: false, message: error.response?.data || error.message };
-    }
-    return {
-      success: false,
-      message: "An unexpected error occurred during logout",
-    };
+    return handleAxiosError(error, "logout");
   }
+};
+
+export const storePassword = async (
+  user_id: string,
+  password: string
+): Promise<any> => {
+  try {
+    const response = await apiBackend.post("/register", {
+      user_id,
+      password,
+    });
+    return { success: true, data: response };
+  } catch (error) {
+    return handleAxiosError(error, "logout");
+  }
+};
+
+const handleAxiosError = (error: unknown, action: string) => {
+  if (axios.isAxiosError(error)) {
+    return { success: false, message: error.response?.data || error.message };
+  }
+  console.log("h");
+  return {
+    success: false,
+    message: `An unexpected error occurred during ${action}`,
+    token: "",
+  };
 };
