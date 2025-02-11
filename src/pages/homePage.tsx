@@ -7,10 +7,8 @@ const HomePage: React.FC = () => {
 
   const Kurwa = async () => {
     const response = verify();
-    console.log((await response).success);
     if ((await response).success) {
       navigate("/tables");
-      console.log("ok?");
     } else {
       navigate("/login"); // This will navigate to the register page
     }

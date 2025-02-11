@@ -1,23 +1,5 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
-
-interface UserParams {
-  user_id: string;
-  customer_id: number;
-  user_name: string;
-  user_phonenumber: string;
-  user_role: string;
-  user_is_active: boolean;
-}
-
-interface CustomerParams {
-  customer_name: string;
-  customer_orgnr: number;
-  customer_nr: string;
-  customer_contact_person: string;
-  customer_phonenumber: string;
-  customer_final_date: string;
-  customer_is_active: boolean;
-}
+import { UserParams, CustomerParams } from "./types"; // Adjust the path based on where your types are located
 
 // Define the base URL
 const apiBackend = axios.create({
@@ -37,6 +19,7 @@ const apiGui = axios.create({
 // Add authorization header to requests (except login and register)
 apiGui.interceptors.request.use((config) => {
   const token = localStorage.getItem("AccessToken");
+
   if (
     token &&
     !config.url?.includes("login") &&
@@ -49,6 +32,7 @@ apiGui.interceptors.request.use((config) => {
 
 apiBackend.interceptors.request.use((config) => {
   const token = localStorage.getItem("AccessToken");
+
   if (
     token &&
     !config.url?.includes("login") &&
@@ -97,14 +81,28 @@ export const registerCall = async (
 };
 
 export const updateCall = async (
-  user_id: string,
-  password: string
+  destination: string,
+  params: RegisterParams
 ): Promise<any> => {
   try {
-    const response = await apiGui.patch("/upsert", { user_id, password });
+    // Dynamically construct the URL based on destination and params type
+    let url: string;
+    if (destination === "user" && "user_id" in params) {
+      // Handle the "user" destination and ensure user_id is available
+      url = `/${destination}/${params.user_id}`;
+    } else if (destination === "customer" && "customer_id" in params) {
+      // Handle the "customer" destination and ensure customer_id is available
+      url = `/${destination}/${params.customer_id}`;
+    } else {
+      // Throw an error if user_id or customer_id is missing
+      throw new Error(`Missing required ID for ${destination}`);
+    }
+
+    // Perform the PATCH request
+    const response = await apiGui.patch(url, params);
     return { success: true, data: response };
   } catch (error) {
-    return handleAxiosError(error, "update");
+    return handleAxiosError(error, "registration");
   }
 };
 
@@ -138,7 +136,7 @@ export const login = async (user_id: string, password: string) => {
     return {
       success: true,
       token: response.data.token,
-      message: "",
+      message: response,
     };
   } catch (error) {
     return handleAxiosError(error, "login");
@@ -154,6 +152,7 @@ export const verify = async () => {
     return {
       success: true,
       role: response.data.tokenValues["role"],
+      message: response.data.message || "hi",
     };
   } catch (error) {
     return {
@@ -190,7 +189,6 @@ const handleAxiosError = (error: unknown, action: string) => {
   if (axios.isAxiosError(error)) {
     return { success: false, message: error.response?.data || error.message };
   }
-  console.log("h");
   return {
     success: false,
     message: `An unexpected error occurred during ${action}`,

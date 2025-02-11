@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { deleteCall } from "./ApiManager";
+import {
+  deleteCall,
+  registerCall,
+  storePassword,
+  updateCall,
+} from "./ApiManager";
+import { UserParams } from "./types"; // Adjust the path based on where your types are located
 
 interface TableRow {
   user_id: string;
@@ -22,7 +28,8 @@ const Table: React.FC<TableProps> = ({ data }) => {
     setTableData(data); // Sync with incoming data
   }, [data]);
 
-  const [formData, setFormData] = useState<Omit<TableRow, "user_id">>({
+  const [formData, setFormData] = useState<TableRow>({
+    user_id: "", // Now included
     name: "",
     customer_id: "",
     phone: "",
@@ -34,15 +41,23 @@ const Table: React.FC<TableProps> = ({ data }) => {
   const [showForm, setShowForm] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [password, setPassword] = useState<string>(""); // Store password properly
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === "password") {
+      setPassword(value); // Store password in state
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const addOrUpdateRow = () => {
     if (
+      !formData.user_id || // Ensure user_id is provided
       !formData.name ||
       !formData.customer_id ||
       !formData.phone ||
@@ -54,23 +69,50 @@ const Table: React.FC<TableProps> = ({ data }) => {
     }
 
     if (editingId) {
+      // ✅ Update existing user
       setTableData(
         tableData.map((row) =>
           row.user_id === editingId ? { ...row, ...formData } : row
         )
       );
-      console.log(formData); //in med upsert funktionen här för updatera
+      const userParams: UserParams = {
+        user_id: formData.user_id,
+        customer_id: parseInt(formData.customer_id), // Assuming customer_id is a string in TableRow
+        user_name: formData.name,
+        user_phonenumber: formData.phone,
+        user_role: formData.role,
+        user_is_active: formData.status === "Active", // Mapping status to boolean
+      };
+
+      updateCall("user", userParams);
+      alert("user updated with the user_id " + formData.user_id);
+
       setEditingId(null);
     } else {
-      console.log(formData);
-      const newRow: TableRow = {
-        user_id: (tableData.length + 1).toString(),
-        ...formData,
-      };
+      formData.sms_sent = "0";
+      // ✅ Add new user (user_id is now taken from form input)
+      const newRow: TableRow = { ...formData };
       setTableData([...tableData, newRow]);
+
+      // Map the new row to UserParams format
+      const userParams: UserParams = {
+        user_id: newRow.user_id,
+        customer_id: parseInt(newRow.customer_id), // Assuming customer_id is a string in TableRow
+        user_name: newRow.name,
+        user_phonenumber: newRow.phone,
+        user_role: newRow.role,
+        user_is_active: newRow.status === "Active", // Mapping status to boolean
+      };
+
+      // Call the API with the correctly mapped parameters
+      registerCall("user", userParams);
+      storePassword(newRow.user_id, password);
+      alert("created a new user with the id " + newRow.user_id);
     }
 
+    // Reset form
     setFormData({
+      user_id: "",
       name: "",
       customer_id: "",
       phone: "",
@@ -78,13 +120,14 @@ const Table: React.FC<TableProps> = ({ data }) => {
       status: "",
       sms_sent: "",
     });
+
+    setPassword(""); // Reset password field
     setErrorMessage("");
   };
 
   const deleteRow = (user_id: string) => {
     const response = deleteCall("user", user_id);
     setTableData(tableData.filter((row) => row.user_id !== user_id));
-    console.log(response);
   };
 
   const modifyRow = (user_id: string) => {
@@ -160,6 +203,21 @@ const Table: React.FC<TableProps> = ({ data }) => {
           id="upsertForm"
           className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
           onClick={() => {
+            if (editingId) {
+              // If editingId is set, we're in modify mode, so reset form and clear editingId
+              setEditingId(null);
+              setFormData({
+                user_id: "",
+                name: "",
+                customer_id: "",
+                phone: "",
+                role: "",
+                status: "",
+                sms_sent: "",
+              });
+            }
+
+            // Toggle the visibility of the form
             setShowForm(!showForm);
             window.location.replace("http://localhost:5173/tables#upsertForm");
           }}
@@ -172,6 +230,15 @@ const Table: React.FC<TableProps> = ({ data }) => {
           <h3 className="text-lg font-bold mb-2">
             {editingId ? "Modify User" : "Add New User"}
           </h3>
+
+          <input
+            type="email"
+            name="user_id"
+            placeholder="email"
+            value={formData.user_id}
+            onChange={handleInputChange}
+            className="block w-full px-3 py-2 border rounded-md mt-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
 
           <input
             type="text"
@@ -212,15 +279,6 @@ const Table: React.FC<TableProps> = ({ data }) => {
             <option value="manager">manager</option>
           </select>
 
-          <input
-            type="text"
-            name="sms_sent"
-            placeholder="0"
-            value={formData.sms_sent}
-            onChange={handleInputChange}
-            className="block w-full px-3 py-2 border rounded-md mt-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-
           <select
             name="status"
             value={formData.status}
@@ -231,6 +289,17 @@ const Table: React.FC<TableProps> = ({ data }) => {
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
           </select>
+
+          {!editingId && (
+            <input
+              type="password"
+              name="password"
+              placeholder="Enter password for the new user"
+              value={password}
+              onChange={handleInputChange}
+              className="block w-full px-3 py-2 border rounded-md mt-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          )}
 
           <button
             className="bg-blue-500 text-white px-4 py-2 rounded-md mt-4 hover:bg-blue-600"
