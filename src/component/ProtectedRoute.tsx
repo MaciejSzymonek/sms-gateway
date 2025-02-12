@@ -18,9 +18,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     const checkAuth = async () => {
       try {
         const response = await verify(); // Call your async verification function
-
+        console.log(response);
         if (response.success) {
           setUserRole(response.role); // Set user role
+          localStorage.setItem("AccessToken", response.token);
           setIsAuthenticated(true);
         } else {
           setIsAuthenticated(false);

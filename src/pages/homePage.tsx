@@ -46,7 +46,10 @@ const HomePage: React.FC = () => {
       <nav className="bg-blue-300 dark:bg-gray-800 shadow-lg">
         <div className="max-w-screen-xl mx-auto px-6 py-6 flex items-center justify-between">
           {/* Left Button */}
-          <button className="text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-400 dark:hover:bg-gray-700 transition">
+          <button
+            onClick={Kurwa}
+            className="text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-400 dark:hover:bg-gray-700 transition"
+          >
             Login In
           </button>
 

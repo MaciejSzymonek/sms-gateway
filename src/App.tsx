@@ -1,12 +1,12 @@
 // src/App.tsx
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Home from "./pages/tables";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 
 import ProtectedRoute from "./component/ProtectedRoute";
 import { AccessDenied } from "./pages/accessDenied";
 import HomePage from "./pages/homePage";
+import Tables from "./pages/Tables";
 // Import ProtectedRoute
 
 const App = () => {
@@ -23,7 +23,7 @@ const App = () => {
           path="/tables"
           element={
             <ProtectedRoute
-              element={<Home />}
+              element={<Tables />}
               requiredRoles={["user", "admin"]}
             /> // Protect /tables route
           }
@@ -31,7 +31,7 @@ const App = () => {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute element={<Home />} requiredRoles={["admin"]} />
+            <ProtectedRoute element={<Tables />} requiredRoles={["admin"]} />
           } // Example: Admin role access
         />
       </Routes>

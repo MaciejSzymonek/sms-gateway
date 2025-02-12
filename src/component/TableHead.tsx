@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Table from "./Table";
+import Table from "./Table copy";
 import { readCall } from "./ApiManager";
 
 interface TableRow {
@@ -20,11 +20,9 @@ const TableHead: React.FC = () => {
       const { success, data, message } = await readCall("user", ""); // You can specify any ID if needed
       if (success) {
         try {
-          // Access the 'data' field correctly based on your response structure
-          if (data && data.data && Array.isArray(data.data)) {
-            const usersArray = data.data; // Access the array inside the 'data' field
-
-            const tableData: TableRow[] = usersArray.map((user: any) => ({
+          // If 'data' is already an array, use it directly
+          if (Array.isArray(data)) {
+            const tableData: TableRow[] = data.map((user: any) => ({
               user_id: String(user.user_id),
               name: user.user_name || "N/A",
               customer_id: user.customer_id ? String(user.customer_id) : "N/A",
@@ -36,7 +34,7 @@ const TableHead: React.FC = () => {
 
             setUsers(tableData);
           } else {
-            console.error("Expected an array inside 'data' but got:", data);
+            console.error("Expected an array but got:", data);
           }
         } catch (error) {
           console.error("Error parsing response data:", error);
