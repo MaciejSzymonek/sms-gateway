@@ -20,13 +20,12 @@ const App = () => {
         {/* Protected routes */}
         <Route
           path="/tables"
-          element={<Home />}
-          /* element={
+          element={
             <ProtectedRoute
               element={<Tables />}
               requiredRoles={["user", "admin"]}
             /> // Protect /tables route
-          } */
+          }
         />
         <Route
           path="/admin"
