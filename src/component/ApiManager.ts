@@ -1,86 +1,67 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
+import { UserParams, CustomerParams } from "./types";
 
-interface UserParams {
-  user_id: string;
-  customer_id: number;
-  user_name: string;
-  user_phonenumber: string;
-  user_role: string;
-  user_is_active: boolean;
-}
+// Define the base URLs
+const BASE_URL_BACKEND = "http://localhost:8080/sms-gateway";
+const BASE_URL_GUI = "http://localhost:8080/GUIApi";
 
-interface CustomerParams {
-  customer_name: string;
-  customer_orgnr: number;
-  customer_nr: string;
-  customer_contact_person: string;
-  customer_phonenumber: string;
-  customer_final_date: string;
-  customer_is_active: boolean;
-}
-
-// Define the base URL
-const apiBackend = axios.create({
-  baseURL: "http://localhost:8080/sms-gateway",
-  headers: {
+// Helper function to construct headers
+const getHeaders = (includeAuth: boolean = true): HeadersInit => {
+  const headers: HeadersInit = {
     "Content-Type": "application/json",
-  },
-});
+  };
 
-const apiGui = axios.create({
-  baseURL: "http://localhost:8080/GUIApi",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Add authorization header to requests (except login and register)
-apiGui.interceptors.request.use((config) => {
-  const token = localStorage.getItem("AccessToken");
-  if (
-    token &&
-    !config.url?.includes("login") &&
-    !config.url?.includes("register")
-  ) {
-    config.headers["Authorization"] = `Bearer ${token}`;
+  if (includeAuth) {
+    const token = localStorage.getItem("AccessToken");
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
   }
-  return config;
-});
 
-apiBackend.interceptors.request.use((config) => {
-  const token = localStorage.getItem("AccessToken");
-  if (
-    token &&
-    !config.url?.includes("login") &&
-    !config.url?.includes("register")
-  ) {
-    config.headers["Authorization"] = `Bearer ${token}`;
-  }
-  return config;
-});
+  return headers;
+};
 
-// Response handling (optional: for specific transformations)
-apiBackend.interceptors.response.use(
-  (response: AxiosResponse) => response.data,
-  (error: AxiosError) => {
-    console.error("API Error:", error.response?.data || error.message);
-    return Promise.reject(error);
+// Helper function to handle API responses
+const handleResponse = async (response: Response) => {
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.message || `HTTP error! status: ${response.status}`
+    );
   }
-);
+  return response.json();
+};
+
+// Helper function to handle errors
+const handleError = (error: unknown, action: string) => {
+  if (error instanceof Error) {
+    return {
+      success: false,
+      message: error.message || `An unexpected error occurred during ${action}`,
+      token: "",
+    };
+  }
+  return {
+    success: false,
+    message: `An unexpected error occurred during ${action}`,
+    token: "",
+  };
+};
 
 export const readCall = async (
   destination: string,
   id: string
 ): Promise<any> => {
   try {
-    const response = await apiGui.get(`/${destination}/${id}`);
-    return { success: true, data: response };
+    const response = await fetch(`${BASE_URL_GUI}/${destination}/${id}`, {
+      method: "GET",
+      headers: getHeaders(),
+    });
+    const data = await handleResponse(response);
+    return { success: true, data };
   } catch (error) {
-    return handleAxiosError(error, destination);
+    return handleError(error, destination);
   }
 };
-
-// Register function
 
 type RegisterParams = UserParams | CustomerParams;
 
@@ -89,22 +70,41 @@ export const registerCall = async (
   params: RegisterParams
 ): Promise<any> => {
   try {
-    const response = await apiGui.post(`/${destination}/`, params);
-    return { success: true, data: response };
+    const response = await fetch(`${BASE_URL_GUI}/${destination}/`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify(params),
+    });
+    const data = await handleResponse(response);
+    return { success: true, data };
   } catch (error) {
-    return handleAxiosError(error, "registration");
+    return handleError(error, "registration");
   }
 };
 
 export const updateCall = async (
-  user_id: string,
-  password: string
+  destination: string,
+  params: RegisterParams
 ): Promise<any> => {
   try {
-    const response = await apiGui.patch("/upsert", { user_id, password });
-    return { success: true, data: response };
+    let url: string;
+    if (destination === "user" && "user_id" in params) {
+      url = `${BASE_URL_GUI}/${destination}/${params.user_id}`;
+    } else if (destination === "customer" && "customer_id" in params) {
+      url = `${BASE_URL_GUI}/${destination}/${params.customer_id}`;
+    } else {
+      throw new Error(`Missing required ID for ${destination}`);
+    }
+
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: getHeaders(),
+      body: JSON.stringify(params),
+    });
+    const data = await handleResponse(response);
+    return { success: true, data };
   } catch (error) {
-    return handleAxiosError(error, "update");
+    return handleError(error, "registration");
   }
 };
 
@@ -113,47 +113,58 @@ export const deleteCall = async (
   id: string
 ): Promise<any> => {
   try {
-    const response = await apiGui.delete(`/${destination}/${id}`);
-    return { success: true, data: response };
+    const response = await fetch(`${BASE_URL_GUI}/${destination}/${id}`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    const data = await handleResponse(response);
+    return { success: true, data };
   } catch (error) {
-    return handleAxiosError(error, destination);
+    return handleError(error, destination);
   }
 };
 
-// Login function
 export const login = async (user_id: string, password: string) => {
   try {
-    const response = await apiBackend.post(
-      "/login",
-      { user_id, password },
-      { withCredentials: true }
-    );
-    if (!response.data.token) {
+    const response = await fetch(`${BASE_URL_BACKEND}/login`, {
+      method: "POST",
+      headers: getHeaders(false),
+      body: JSON.stringify({ user_id, password }),
+      credentials: "include",
+    });
+    const data = await handleResponse(response);
+    console.log(response);
+    if (!data.token) {
       return {
         success: false,
-        message: response.data.error || "No token in response",
+        message: data.error || "No token in response",
         token: "",
       };
     }
     return {
       success: true,
-      token: response.data.token,
-      message: "",
+      token: data.token,
+      message: data,
     };
   } catch (error) {
-    return handleAxiosError(error, "login");
+    return handleError(error, "login");
   }
 };
 
 export const verify = async () => {
   try {
-    const response = await apiBackend.get("/verifyToken", {
-      withCredentials: true,
+    const response = await fetch(`${BASE_URL_BACKEND}/verifyToken`, {
+      method: "GET",
+      headers: getHeaders(),
+      credentials: "include",
     });
+    const data = await handleResponse(response);
 
     return {
       success: true,
-      role: response.data.tokenValues["role"],
+      role: data.tokenValues?.["role"],
+      message: data.message || "hi",
+      token: data.token,
     };
   } catch (error) {
     return {
@@ -164,10 +175,14 @@ export const verify = async () => {
 
 export const logout = async (): Promise<any> => {
   try {
-    const response = await apiBackend.delete("/logout");
-    return { success: true, data: response };
+    const response = await fetch(`${BASE_URL_BACKEND}/logout`, {
+      method: "DELETE",
+      headers: getHeaders(),
+    });
+    const data = await handleResponse(response);
+    return { success: true, data };
   } catch (error) {
-    return handleAxiosError(error, "logout");
+    return handleError(error, "logout");
   }
 };
 
@@ -176,24 +191,14 @@ export const storePassword = async (
   password: string
 ): Promise<any> => {
   try {
-    const response = await apiBackend.post("/register", {
-      user_id,
-      password,
+    const response = await fetch(`${BASE_URL_BACKEND}/register`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ user_id, password }),
     });
-    return { success: true, data: response };
+    const data = await handleResponse(response);
+    return { success: true, data };
   } catch (error) {
-    return handleAxiosError(error, "logout");
+    return handleError(error, "logout");
   }
-};
-
-const handleAxiosError = (error: unknown, action: string) => {
-  if (axios.isAxiosError(error)) {
-    return { success: false, message: error.response?.data || error.message };
-  }
-  console.log("h");
-  return {
-    success: false,
-    message: `An unexpected error occurred during ${action}`,
-    token: "",
-  };
 };

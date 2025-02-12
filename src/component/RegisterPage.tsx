@@ -61,7 +61,7 @@ const RegisterPage = () => {
           setRedirecting(true); // Enable the redirecting state
           setTimeout(() => {
             window.location.replace(
-              window.location.protocol + "//" + window.location.host + "/login"
+              window.location.protocol + "//" + window.location.host + "/"
             );
           }, 500); // Add a slight delay to show redirect spinner before actually redirecting
         }, 1000); // Delay the redirecting message for 1 second (adjust as needed)

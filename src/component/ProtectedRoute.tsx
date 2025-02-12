@@ -18,10 +18,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     const checkAuth = async () => {
       try {
         const response = await verify(); // Call your async verification function
-        console.log("User role:", response.role);
-
+        console.log(response);
         if (response.success) {
           setUserRole(response.role); // Set user role
+          localStorage.setItem("AccessToken", response.token);
           setIsAuthenticated(true);
         } else {
           setIsAuthenticated(false);
@@ -42,12 +42,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
     console.log("User is not authenticated.");
-    return <Navigate to="/login" />;
+    //window.location.replace("http://localhost:5173/access-denied");
+    return <Navigate to="/access-denied" />;
   }
 
   // Check if user's role is in the allowed roles array
   if (!requiredRoles.includes(userRole!)) {
     console.log("Access denied for role:", userRole);
+    //window.location.replace("http://localhost:5173/access-denied");
     return <Navigate to="/access-denied" />;
   }
 
