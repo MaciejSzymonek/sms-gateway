@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { logout } from "./ApiManager";
+import { MdOutlineLogin } from "react-icons/md";
+
 const LogOut = () => {
   const navigate = useNavigate();
 
@@ -20,10 +22,10 @@ const LogOut = () => {
   return (
     <div>
       <button
-        className="bg-red-500 text-white px-4 py-2 rounded-md mb-4"
+        className="bg-red-500 text-white px-4 py-2 rounded-md mb-4 hover:bg-red-600"
         onClick={handleLogout}
       >
-        Log Out
+        <MdOutlineLogin />
       </button>
     </div>
   );

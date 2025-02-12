@@ -3,9 +3,9 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./pages/tables";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import HomePage from "./pages/HomePage";
 import ProtectedRoute from "./component/ProtectedRoute";
 import { AccessDenied } from "./pages/accessDenied";
+import HomePage from "./pages/homePage";
 // Import ProtectedRoute
 
 const App = () => {
@@ -20,12 +20,13 @@ const App = () => {
         {/* Protected routes */}
         <Route
           path="/tables"
-          element={
+          element={<Home />}
+          /* element={
             <ProtectedRoute
               element={<Home />}
               requiredRoles={["user", "admin"]}
             /> // Protect /tables route
-          }
+          } */
         />
         <Route
           path="/admin"

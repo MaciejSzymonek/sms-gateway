@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Table from "./Table";
+import Table from "./Table copy";
 import { readCall } from "./ApiManager";
 
 interface TableRow {
