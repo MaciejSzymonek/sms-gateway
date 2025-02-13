@@ -7,10 +7,11 @@ const LogOut = () => {
 
   const handleLogout = async () => {
     try {
-      await logout(); // Await if logout is async
+      const log = await logout(); // Await if logout is async
       localStorage.removeItem("AccessToken"); // Remove the access token from localStorage
       navigate("/login"); // Redirect to the login page
       // // Optionally log the response from logout
+      console.log(log);
     } catch (error) {
       console.error("Logout failed:", error);
       // Optionally, show a message to the user

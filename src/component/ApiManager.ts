@@ -178,6 +178,7 @@ export const logout = async (): Promise<any> => {
     const response = await fetch(`${BASE_URL_BACKEND}/logout`, {
       method: "DELETE",
       headers: getHeaders(),
+      credentials: "include",
     });
     const data = await handleResponse(response);
     return { success: true, data };
