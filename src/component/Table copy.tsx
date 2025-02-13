@@ -104,9 +104,7 @@ const Table: React.FC<TableProps> = ({ data }) => {
                   className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
                   onClick={() => {
                     modifyRow(row.user_id);
-                    window.location.replace(
-                      "http://localhost:5173/tables#form"
-                    );
+                    window.location.hash = "form";
                   }}
                 >
                   <CiEdit />
@@ -136,7 +134,9 @@ const Table: React.FC<TableProps> = ({ data }) => {
         className="bg-green-500 text-white px-4 py-2 rounded-md mt-4 hover:bg-green-600"
         onClick={() => {
           setShowForm(!showForm);
-          window.location.replace("http://localhost:5173/tables#form");
+          setEditingId(null); // Reset editing mode
+          setFormData({}); // Clear the form fields
+          window.location.hash = "form"; // Ensure smooth scrolling
         }}
       >
         {showForm ? "Hide Form" : "Add User"}
