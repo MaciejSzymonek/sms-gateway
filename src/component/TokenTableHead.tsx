@@ -1,56 +1,52 @@
 import React, { useEffect, useState } from "react";
 import Table from "./Table copy";
 import { readCall } from "./ApiManager";
+import SearchBar from "./SearchBar";
 
-interface TableRow {
+interface Token {
   token_id: string;
-  token_user_id: string;
-  token: string;
-  token_created_at: string;
-  token_expires_at: string;
-  token_type: string;
+  token_value: string;
+  token_owner: string;
+  token_expiry: string;
+  token_status: string;
 }
 
 const TokenTableHead: React.FC = () => {
-  const [tokens, settokens] = useState<TableRow[]>([]);
+  const [tokens, setTokens] = useState<Token[]>([]);
+  const [filteredTokens, setFilteredTokens] = useState<Token[]>([]);
 
   useEffect(() => {
-    const fetchtokens = async () => {
-      const { success, data, message } = await readCall("token", ""); // You can specify any ID if needed
-      if (success) {
-        try {
-          // If 'data' is already an array, use it directly
-          if (Array.isArray(data)) {
-            const tableData: TableRow[] = data.map((token: any) => ({
-              token_id: String(token.token_id),
-              token_user_id: token.token_user_id || "N/A",
-              // Split the token by the dots, then join everything after the second dot
-              token: token.token
-                ? token.token.split(".").slice(2).join(".")
-                : "N/A",
-              token_created_at: token.token_created_at || "N/A",
-              token_expires_at: token.token_expires_at || "N/A",
-              token_type: token.token_type || "N/A",
-            }));
+    const fetchTokens = async () => {
+      const { success, data } = await readCall("token", "");
+      if (success && Array.isArray(data)) {
+        const tableData: Token[] = data.map((token: any) => ({
+          token_id: String(token.token_id),
+          token_value: token.token_value || "N/A",
+          token_owner: token.token_owner || "N/A",
+          token_expiry: token.token_expiry || "N/A",
+          token_status: token.token_is_active ? "Active" : "Inactive",
+        }));
 
-            settokens(tableData);
-          } else {
-            console.error("Expected an array but got:", data);
-          }
-        } catch (error) {
-          console.error("Error parsing response data:", error);
-        }
-      } else {
-        console.error("Error fetching tokens:", message);
+        setTokens(tableData);
+        setFilteredTokens(tableData);
       }
     };
 
-    fetchtokens();
+    fetchTokens();
   }, []);
 
   return (
     <div>
-      <Table data={tokens} />
+      <SearchBar
+        data={tokens}
+        setFilteredData={setFilteredTokens}
+        searchFields={["token_value", "token_owner"]}
+      />
+      {filteredTokens.length > 0 ? (
+        <Table data={filteredTokens} />
+      ) : (
+        <p className="text-center text-gray-500">No results found.</p>
+      )}
     </div>
   );
 };

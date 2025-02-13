@@ -21,7 +21,9 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
         onClick={back}
         className="absolute top-0 left-0 h-full w-[96px] bg-red-500 text-white hover:bg-red-700 transition duration-300 flex items-center justify-center"
       >
-        <FaArrowLeft className="text-2xl" />
+        <span className="text-2xl">
+          <FaArrowLeft />
+        </span>
       </button>
 
       {/* Title in the Center */}
@@ -29,7 +31,9 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
 
       {/* Settings Button in the Top-Right */}
       <button className="absolute top-0 right-0 h-full w-[96px] bg-red-500 text-white hover:bg-blue-700 transition duration-300 flex items-center justify-center">
-        <MdLogout className="text-2xl" />
+        <span className="text-2xl">
+          <MdLogout />
+        </span>
       </button>
     </header>
   );

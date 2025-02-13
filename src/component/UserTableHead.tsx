@@ -1,46 +1,34 @@
 import React, { useEffect, useState } from "react";
 import Table from "./Table copy";
 import { readCall } from "./ApiManager";
+import SearchBar from "./SearchBar";
 
-interface TableRow {
+interface User {
   user_id: string;
-  name: string;
-  customer_id: string;
-  phone: string;
-  role: string;
-  status: string;
-  sms_sent: string;
+  user_name: string;
+  user_email: string;
+  user_role: string;
+  user_status: string;
 }
 
 const UserTableHead: React.FC = () => {
-  const [users, setUsers] = useState<TableRow[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const { success, data, message } = await readCall("user", ""); // You can specify any ID if needed
-      if (success) {
-        try {
-          // If 'data' is already an array, use it directly
-          if (Array.isArray(data)) {
-            const tableData: TableRow[] = data.map((user: any) => ({
-              user_id: String(user.user_id),
-              name: user.user_name || "N/A",
-              customer_id: user.customer_id ? String(user.customer_id) : "N/A",
-              phone: user.user_phonenumber || "N/A",
-              role: user.user_role || "N/A",
-              sms_sent: user.total_sms_sent,
-              status: user.user_is_active ? "Active" : "Inactive",
-            }));
+      const { success, data } = await readCall("user", "");
+      if (success && Array.isArray(data)) {
+        const tableData: User[] = data.map((user: any) => ({
+          user_id: String(user.user_id),
+          user_name: user.user_name || "N/A",
+          user_email: user.user_email || "N/A",
+          user_role: user.user_role || "N/A",
+          user_status: user.user_is_active ? "Active" : "Inactive",
+        }));
 
-            setUsers(tableData);
-          } else {
-            console.error("Expected an array but got:", data);
-          }
-        } catch (error) {
-          console.error("Error parsing response data:", error);
-        }
-      } else {
-        console.error("Error fetching users:", message);
+        setUsers(tableData);
+        setFilteredUsers(tableData);
       }
     };
 
@@ -49,7 +37,16 @@ const UserTableHead: React.FC = () => {
 
   return (
     <div>
-      <Table data={users} />
+      <SearchBar
+        data={users}
+        setFilteredData={setFilteredUsers}
+        searchFields={["user_name", "user_id", "user_role"]}
+      />
+      {filteredUsers.length > 0 ? (
+        <Table data={filteredUsers} />
+      ) : (
+        <p className="text-center text-gray-500">No results found.</p>
+      )}
     </div>
   );
 };
