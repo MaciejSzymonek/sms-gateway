@@ -126,7 +126,7 @@ const Table: React.FC<TableProps> = ({ data }) => {
   };
 
   const deleteRow = (user_id: string) => {
-    const response = deleteCall("user", user_id);
+    deleteCall("user", user_id);
     setTableData(tableData.filter((row) => row.user_id !== user_id));
   };
 

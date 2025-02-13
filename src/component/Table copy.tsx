@@ -102,7 +102,12 @@ const Table: React.FC<TableProps> = ({ data }) => {
               <td className="border border-gray-300 px-4 py-2 flex gap-2">
                 <button
                   className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                  onClick={() => modifyRow(row.user_id)}
+                  onClick={() => {
+                    modifyRow(row.user_id);
+                    window.location.replace(
+                      "http://localhost:5173/tables#form"
+                    );
+                  }}
                 >
                   <CiEdit />
                 </button>
@@ -127,8 +132,12 @@ const Table: React.FC<TableProps> = ({ data }) => {
       </table>
 
       <button
+        id="form"
         className="bg-green-500 text-white px-4 py-2 rounded-md mt-4 hover:bg-green-600"
-        onClick={() => setShowForm(!showForm)}
+        onClick={() => {
+          setShowForm(!showForm);
+          window.location.replace("http://localhost:5173/tables#form");
+        }}
       >
         {showForm ? "Hide Form" : "Add User"}
       </button>

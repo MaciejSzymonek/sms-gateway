@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { logout } from "./ApiManager";
-import { MdOutlineLogin } from "react-icons/md";
+import { MdLogout } from "react-icons/md";
 
 const LogOut = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      const response = await logout(); // Await if logout is async
+      await logout(); // Await if logout is async
       localStorage.removeItem("AccessToken"); // Remove the access token from localStorage
       navigate("/login"); // Redirect to the login page
       // // Optionally log the response from logout
@@ -19,12 +19,12 @@ const LogOut = () => {
   };
 
   return (
-    <div>
+    <div className="content-end">
       <button
-        className="bg-red-500 text-white px-4 py-2 rounded-md mb-4 hover:bg-red-600"
+        className="bg-red-500 w- text-white px-4 py-3 rounded-md mb-4 hover:bg-red-600"
         onClick={handleLogout}
       >
-        <MdOutlineLogin />
+        <MdLogout />
       </button>
     </div>
   );

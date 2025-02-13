@@ -1,21 +1,24 @@
 // src/Home.tsx
 import { useNavigate } from "react-router-dom";
-import TableHead from "../component/TableHead";
-import LogOut from "../component/LogOut";
+
+import Header from "../component/Header";
+import TableNav from "../component/TableNavBody";
 
 const Tables = () => {
   const navigate = useNavigate();
-
-  const goTologinPage = () => {
-    navigate("/"); // This will navigate to the login page
+  const handleClick = (type: string) => {
+    navigate(`/${type}`);
   };
 
   return (
-    <div className="p-2">
-      <LogOut />
-      <button onClick={goTologinPage}></button>
-      <TableHead />
-    </div>
+    <>
+      <Header title="Tables" />
+      <TableNav
+        onUserClick={() => handleClick("userTable")}
+        onCustomerClick={() => handleClick("customerTable")}
+        onTokenClick={() => handleClick("tokenTable")}
+      />
+    </>
   );
 };
 

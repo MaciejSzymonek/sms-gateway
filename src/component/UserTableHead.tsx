@@ -12,7 +12,7 @@ interface TableRow {
   sms_sent: string;
 }
 
-const TableHead: React.FC = () => {
+const UserTableHead: React.FC = () => {
   const [users, setUsers] = useState<TableRow[]>([]);
 
   useEffect(() => {
@@ -54,4 +54,4 @@ const TableHead: React.FC = () => {
   );
 };
 
-export default TableHead;
+export default UserTableHead;
