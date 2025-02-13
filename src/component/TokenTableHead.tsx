@@ -5,10 +5,11 @@ import SearchBar from "./SearchBar";
 
 interface Token {
   token_id: string;
-  token_value: string;
-  token_owner: string;
-  token_expiry: string;
-  token_status: string;
+  token_user_id: string;
+  token: string;
+  token_created_at: string;
+  token_expires_at: string;
+  token_type: string;
 }
 
 const TokenTableHead: React.FC = () => {
@@ -21,10 +22,11 @@ const TokenTableHead: React.FC = () => {
       if (success && Array.isArray(data)) {
         const tableData: Token[] = data.map((token: any) => ({
           token_id: String(token.token_id),
-          token_value: token.token_value || "N/A",
-          token_owner: token.token_owner || "N/A",
-          token_expiry: token.token_expiry || "N/A",
-          token_status: token.token_is_active ? "Active" : "Inactive",
+          token_user_id: token.token_user_id || "N/A",
+          token: token.token.split(".")[2] || "N/A",
+          token_created_at: token.token_created_at || "N/A",
+          token_expires_at: token.token_expires_at,
+          token_type: token.token_type || "N/A",
         }));
 
         setTokens(tableData);
@@ -40,7 +42,7 @@ const TokenTableHead: React.FC = () => {
       <SearchBar
         data={tokens}
         setFilteredData={setFilteredTokens}
-        searchFields={["token_value", "token_owner"]}
+        searchFields={["token_user_id", "token_type", "token_created_at"]}
       />
       {filteredTokens.length > 0 ? (
         <Table data={filteredTokens} />

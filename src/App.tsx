@@ -7,10 +7,10 @@ import { AccessDenied } from "./pages/accessDenied";
 import HomePage from "./pages/homePage";
 import UserTables from "./pages/userTable";
 
-import Login from "./pages/Login";
 import CustomerTable from "./pages/customerTable";
 import TokenTable from "./pages/tokenTable";
 import Tables from "./pages/tables";
+import Login from "./pages/login";
 
 const App = () => {
   return (
@@ -24,39 +24,39 @@ const App = () => {
         {/* Protected routes */}
         <Route
           path="/tables"
-          //element={
-          //<ProtectedRoute
-          element={<Tables />}
-          //requiredRoles={["user", "admin"]}
-          ///> // Protect /tables route
-          //}
+          element={
+            <ProtectedRoute
+              element={<Tables />}
+              requiredRoles={["user", "admin"]}
+            /> // Protect /tables route
+          }
         />
         <Route
           path="/userTable"
-          /*  element={
-            <ProtectedRoute */
-          element={<UserTables />}
-          /* requiredRoles={["user", "admin"]}
+          element={
+            <ProtectedRoute
+              element={<UserTables />}
+              requiredRoles={["user", "admin"]}
             /> // Protect /tables route
-          } */
+          }
         />
         <Route
           path="/customerTable"
-          /* element={
-            <ProtectedRoute */
-          element={<CustomerTable />}
-          /* requiredRoles={["user", "admin"]}
+          element={
+            <ProtectedRoute
+              element={<CustomerTable />}
+              requiredRoles={["user", "admin"]}
             /> // Protect /tables route
-          } */
+          }
         />
         <Route
           path="/tokenTable"
-          /* element={
-            <ProtectedRoute */
-          element={<TokenTable />}
-          /*  requiredRoles={["user", "admin"]}
+          element={
+            <ProtectedRoute
+              element={<TokenTable />}
+              requiredRoles={["user", "admin"]}
             /> // Protect /tables route
-          } */
+          }
         />
         <Route
           path="/admin"
