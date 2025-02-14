@@ -31,7 +31,7 @@ const SearchBar = <T,>({
   };
 
   return (
-    <div className="flex items-center space-x-2 mb-4">
+    <div className="flex items-center space-x-2 mb-4 w-full p-3 text-lg border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
       <input
         type="text"
         placeholder="Search..."

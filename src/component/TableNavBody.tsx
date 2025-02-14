@@ -18,12 +18,12 @@ const TableNav: React.FC<TableNavProps> = ({
   ];
 
   return (
-    <div className="flex flex-col md:flex-row h-200">
+    <div className="flex flex-col md:flex-row gap-4 p-4">
       {cards.map((card, index) => (
         <button
           key={index}
           onClick={card.onClick}
-          className={`flex-1 ${card.color} flex items-center justify-center text-white text-3xl font-bold transition-transform hover:scale-101 active:scale-95`}
+          className={`flex-1 ${card.color} flex items-center justify-center text-white text-2xl font-semibold p-6 rounded-2xl shadow-lg transition-transform transform hover:scale-105 active:scale-95 hover:shadow-xl`}
         >
           {card.title}
         </button>
